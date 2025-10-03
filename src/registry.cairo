@@ -1,5 +1,4 @@
 use starknet::ContractAddress;
-
 #[starknet::interface]
 pub trait IRegistry<TContractState> {
     /// Register name to address
@@ -14,11 +13,15 @@ pub trait IRegistry<TContractState> {
 
 #[starknet::contract]
 mod Registry {
+    use ans::errors;
+    use core::num::traits::zero::Zero;
     use starknet::storage::{
         Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePathEntry,
         StoragePointerReadAccess, StoragePointerWriteAccess,
     };
     use starknet::{ContractAddress, get_caller_address, get_contract_address};
+
+    pub const DEFAULT_SUFFIX: felt252 = 'ans';
 
     #[storage]
     struct Storage {
@@ -28,6 +31,11 @@ mod Registry {
     #[abi(embed_v0)]
     impl RegistryImpl of super::IRegistry<ContractState> {
         fn register(ref self: ContractState, name: felt252, suffix: felt252) {
+            assert(name.is_non_zero(), errors::ZERO_PREFIX);
+            assert(suffix.is_non_zero(), errors::ZERO_SUFFIX);
+
+            self.not_registered(name, suffix);
+
             let caller = get_caller_address();
             self.name_to_address.entry(suffix).write(name, caller);
             self.address_to_name.write(caller, name);
@@ -46,6 +54,9 @@ mod Registry {
 
     #[generate_trait]
     impl RegistryInternal of RegistryInternalTrait {
-        fn not_registered(self: @ContractState, name: felt252) {}
+        fn not_registered(self: @ContractState, name: felt252, suffix: felt252) {
+            let result = self.name_to_address.entry(suffix).read(name);
+            assert(result.is_zero(), errors::ALREADY_REGISTERED_NAME);
+        }
     }
 }
