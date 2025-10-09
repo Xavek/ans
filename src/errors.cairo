@@ -4,3 +4,4 @@ pub const ZERO_PREFIX: felt252 = 'ZERO_PREFIX';
 pub const ZERO_FEE_KEY: felt252 = 'ZERO_FEE_KEY';
 pub const FEE_NOT_SUPPORTED: felt252 = 'FEE_NOT_SUPPORTED';
 pub const FEE_NOT_SET: felt252 = 'FEE_NOT_SET';
+pub const ZERO_INPUT_ADDR: felt252 = 'ZERO_INPUT_ADDR';

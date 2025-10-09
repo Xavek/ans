@@ -1,4 +1,11 @@
 use starknet::ContractAddress;
+
+#[derive(Copy, Drop, Serde, PartialEq)]
+pub struct Name {
+    pub prefix: felt252,
+    pub suffix: felt252,
+}
+
 #[starknet::interface]
 pub trait IRegistry<TContractState> {
     /// Register name to address
@@ -8,7 +15,9 @@ pub trait IRegistry<TContractState> {
         self: @TContractState, name: felt252, suffix: felt252,
     ) -> ContractAddress;
     /// Retrieve name from address
-    fn retrieve_name_from_address(self: @TContractState, addr: ContractAddress) -> felt252;
+    fn retrieve_name_from_address(
+        self: @TContractState, addr: ContractAddress, suffix: felt252,
+    ) -> Name;
 }
 
 #[starknet::interface]
