@@ -1,3 +1,6 @@
 pub const ALREADY_REGISTERED_NAME: felt252 = 'ALREADY_REGISTERED_NAME';
 pub const ZERO_SUFFIX: felt252 = 'ZERO_SUFFIX';
 pub const ZERO_PREFIX: felt252 = 'ZERO_PREFIX';
+pub const ZERO_FEE_KEY: felt252 = 'ZERO_FEE_KEY';
+pub const FEE_NOT_SUPPORTED: felt252 = 'FEE_NOT_SUPPORTED';
+pub const FEE_NOT_SET: felt252 = 'FEE_NOT_SET';
