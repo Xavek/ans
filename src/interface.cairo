@@ -11,3 +11,9 @@ pub trait IRegistry<TContractState> {
     fn retrieve_name_from_address(self: @TContractState, addr: ContractAddress) -> felt252;
 }
 
+#[starknet::interface]
+pub trait IERC20<TContractState> {
+    fn transferFrom(
+        ref self: TContractState, sender: ContractAddress, recipient: ContractAddress, amount: u256,
+    ) -> bool;
+}
