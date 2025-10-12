@@ -1,7 +1,7 @@
 #[starknet::contract]
 mod Registry {
-    use ans::errors;
     use ans::interface::{FeeInfo, IAdmin, IERC20Dispatcher, IERC20DispatcherTrait, IRegistry, Name};
+    use ans::{errors, events};
     use core::num::traits::zero::Zero;
     use starknet::storage::{
         Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePathEntry,
@@ -21,6 +21,14 @@ mod Registry {
         admin: ContractAddress,
     }
 
+    #[event]
+    #[derive(Drop, PartialEq, starknet::Event)]
+    pub enum Event {
+        FeeInfoEvent: events::FeeInfoEvent,
+        FeeInfoCompleteEvent: events::FeeInfoCompleteEvent,
+        SuffixAdminEvent: events::SuffixAdminEvent,
+    }
+
     #[abi(embed_v0)]
     impl AdminImpl of IAdmin<ContractState> {
         fn add_fee_info(ref self: ContractState, suffix: felt252, fee_info: FeeInfo) {
@@ -36,7 +44,16 @@ mod Registry {
             let suffix_count = self.suffix_log.read(suffix);
 
             assert(suffix_count == 0, errors::SUFFIX_ALREADY_REGISTERED);
-            //TODO: emit the FEE Info
+            self
+                .emit(
+                    events::FeeInfoEvent {
+                        suffix: suffix,
+                        suffix_admin: caller,
+                        asset_addr: fee_info.asset_addr,
+                        amount: fee_info.amount,
+                        flag: fee_info.flag,
+                    },
+                );
         }
         fn complete_add_fee_info(ref self: ContractState, suffix: felt252, fee_info: FeeInfo) {
             assert(suffix.is_non_zero(), errors::ZERO_SUFFIX);
@@ -52,7 +69,16 @@ mod Registry {
 
             self.suffix_log.write(suffix, 1_u8);
             self.fee_info.write(suffix, fee_info);
-            // TODO: do emit the events here and overall
+            self
+                .emit(
+                    events::FeeInfoCompleteEvent {
+                        suffix: suffix,
+                        admin: caller,
+                        asset_addr: fee_info.asset_addr,
+                        amount: fee_info.amount,
+                        flag: fee_info.flag,
+                    },
+                );
         }
         fn add_suffix_admin(ref self: ContractState, suffix: felt252, addr: ContractAddress) {
             assert(suffix.is_non_zero(), errors::ZERO_SUFFIX);
@@ -60,6 +86,10 @@ mod Registry {
             let caller = get_caller_address();
             assert(caller == self.admin.read(), errors::NOT_ADMIN);
             self.suffix_admin.write(suffix, addr);
+            self
+                .emit(
+                    events::SuffixAdminEvent { suffix: suffix, suffix_admin: addr, admin: caller },
+                );
         }
     }
 
