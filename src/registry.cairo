@@ -1,30 +1,66 @@
-use starknet::ContractAddress;
-
-#[derive(Copy, Drop, Serde, starknet::Store, PartialEq)]
-pub struct FeeInfo {
-    pub asset_addr: ContractAddress,
-    pub amount: u256,
-    pub flag: bool,
-}
-
 #[starknet::contract]
 mod Registry {
     use ans::errors;
-    use ans::interface::{IERC20Dispatcher, IERC20DispatcherTrait, IRegistry, Name};
+    use ans::interface::{FeeInfo, IAdmin, IERC20Dispatcher, IERC20DispatcherTrait, IRegistry, Name};
     use core::num::traits::zero::Zero;
     use starknet::storage::{
         Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePathEntry,
         StoragePointerReadAccess, StoragePointerWriteAccess,
     };
     use starknet::{ContractAddress, get_caller_address, get_contract_address};
-    use super::FeeInfo;
+
+    const PROHIBITED_SUFFIX: felt252 = 'stark';
 
     #[storage]
     struct Storage {
         name_to_address: Map<felt252, Map<felt252, ContractAddress>>,
         address_to_name: Map<ContractAddress, Map<felt252, felt252>>,
         fee_info: Map<felt252, FeeInfo>,
-        fee_receiver: ContractAddress,
+        suffix_admin: Map<felt252, ContractAddress>,
+        suffix_log: Map<felt252, u8>,
+        admin: ContractAddress,
+    }
+
+    #[abi(embed_v0)]
+    impl AdminImpl of IAdmin<ContractState> {
+        fn add_fee_info(ref self: ContractState, suffix: felt252, fee_info: FeeInfo) {
+            assert(suffix.is_non_zero(), errors::ZERO_SUFFIX);
+            assert(suffix != PROHIBITED_SUFFIX, errors::PROHIBITED_SUFFIX);
+            assert(fee_info.asset_addr.is_non_zero(), errors::FEE_ASSET_ZERO);
+            assert(fee_info.flag == true, errors::FEE_FLAG_INVALID);
+
+            let caller = get_caller_address();
+            let suffix_admin_addr = self.suffix_admin.read(suffix);
+            assert(caller == suffix_admin_addr, errors::SUFFIX_ADMIN_NOT_REGISTER);
+
+            let suffix_count = self.suffix_log.read(suffix);
+
+            assert(suffix_count == 0, errors::SUFFIX_ALREADY_REGISTERED);
+            //TODO: emit the FEE Info
+        }
+        fn complete_add_fee_info(ref self: ContractState, suffix: felt252, fee_info: FeeInfo) {
+            assert(suffix.is_non_zero(), errors::ZERO_SUFFIX);
+            assert(suffix != PROHIBITED_SUFFIX, errors::PROHIBITED_SUFFIX);
+            assert(fee_info.asset_addr.is_non_zero(), errors::FEE_ASSET_ZERO);
+            assert(fee_info.flag == true, errors::FEE_FLAG_INVALID);
+
+            let caller = get_caller_address();
+            assert(caller == self.admin.read(), errors::NOT_ADMIN);
+
+            let suffix_count = self.suffix_log.read(suffix);
+            assert(suffix_count == 0, errors::SUFFIX_ALREADY_REGISTERED);
+
+            self.suffix_log.write(suffix, 1_u8);
+            self.fee_info.write(suffix, fee_info);
+            // TODO: do emit the events here and overall
+        }
+        fn add_suffix_admin(ref self: ContractState, suffix: felt252, addr: ContractAddress) {
+            assert(suffix.is_non_zero(), errors::ZERO_SUFFIX);
+            assert(addr.is_non_zero(), errors::ZERO_INPUT_ADDR);
+            let caller = get_caller_address();
+            assert(caller == self.admin.read(), errors::NOT_ADMIN);
+            self.suffix_admin.write(suffix, addr);
+        }
     }
 
     #[abi(embed_v0)]
@@ -32,6 +68,7 @@ mod Registry {
         fn register(ref self: ContractState, name: felt252, suffix: felt252, fee_key: felt252) {
             assert(name.is_non_zero(), errors::ZERO_PREFIX);
             assert(suffix.is_non_zero(), errors::ZERO_SUFFIX);
+            assert(suffix != PROHIBITED_SUFFIX, errors::PROHIBITED_SUFFIX);
             assert(fee_key.is_non_zero(), errors::ZERO_FEE_KEY);
 
             self.not_registered(name, suffix);

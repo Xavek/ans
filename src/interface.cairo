@@ -6,6 +6,13 @@ pub struct Name {
     pub suffix: felt252,
 }
 
+#[derive(Copy, Drop, Serde, starknet::Store, PartialEq)]
+pub struct FeeInfo {
+    pub asset_addr: ContractAddress,
+    pub amount: u256,
+    pub flag: bool,
+}
+
 #[starknet::interface]
 pub trait IRegistry<TContractState> {
     /// Register name to address
@@ -25,4 +32,11 @@ pub trait IERC20<TContractState> {
     fn transferFrom(
         ref self: TContractState, sender: ContractAddress, recipient: ContractAddress, amount: u256,
     ) -> bool;
+}
+
+#[starknet::interface]
+pub trait IAdmin<TContractState> {
+    fn add_fee_info(ref self: TContractState, suffix: felt252, fee_info: FeeInfo);
+    fn complete_add_fee_info(ref self: TContractState, suffix: felt252, fee_info: FeeInfo);
+    fn add_suffix_admin(ref self: TContractState, suffix: felt252, addr: ContractAddress);
 }
