@@ -19,6 +19,7 @@ mod Registry {
         suffix_admin: Map<felt252, ContractAddress>,
         suffix_log: Map<felt252, u8>,
         admin: ContractAddress,
+        fee_investor: ContractAddress,
     }
 
     #[event]
@@ -105,6 +106,7 @@ mod Registry {
             let caller = get_caller_address();
             let fee_struct = self.get_suffix_details(fee_key);
             self.take_fees(caller, fee_struct);
+            self.send_fees(fee_struct.asset_addr);
             self.name_to_address.entry(suffix).write(name, caller);
             self.address_to_name.entry(caller).write(suffix, name);
         }
@@ -149,6 +151,14 @@ mod Registry {
                 let asset_addr = fee_struct.asset_addr;
                 let dispatcher = IERC20Dispatcher { contract_address: asset_addr };
                 dispatcher.transferFrom(sender, this, fee_struct.amount);
+            }
+        }
+
+        fn send_fees(ref self: ContractState, asset_addr: ContractAddress) {
+            let dispatcher = IERC20Dispatcher { contract_address: asset_addr };
+            let balance = dispatcher.balanceOf(get_contract_address());
+            if (balance > 0) {
+                dispatcher.transfer(self.fee_investor.read(), balance);
             }
         }
     }

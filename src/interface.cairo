@@ -32,6 +32,9 @@ pub trait IERC20<TContractState> {
     fn transferFrom(
         ref self: TContractState, sender: ContractAddress, recipient: ContractAddress, amount: u256,
     ) -> bool;
+    fn balanceOf(self: @TContractState, account: ContractAddress) -> u256;
+    fn approve(ref self: TContractState, spender: ContractAddress, amount: u256) -> bool;
+    fn transfer(ref self: TContractState, recipient: ContractAddress, amount: u256) -> bool;
 }
 
 #[starknet::interface]
@@ -39,4 +42,27 @@ pub trait IAdmin<TContractState> {
     fn add_fee_info(ref self: TContractState, suffix: felt252, fee_info: FeeInfo);
     fn complete_add_fee_info(ref self: TContractState, suffix: felt252, fee_info: FeeInfo);
     fn add_suffix_admin(ref self: TContractState, suffix: felt252, addr: ContractAddress);
+}
+
+#[starknet::interface]
+pub trait IVesu<TContractState> {
+    fn deposit(ref self: TContractState, assets: u256, receiver: ContractAddress) -> u256;
+    fn max_withdraw(self: @TContractState, owner: ContractAddress) -> u256;
+    fn withdraw(
+        ref self: TContractState, assets: u256, receiver: ContractAddress, owner: ContractAddress,
+    ) -> u256;
+}
+
+#[starknet::interface]
+pub trait IFeeInvest<TContractState> {
+    fn deposit_fees(ref self: TContractState, asset_addr: ContractAddress);
+    fn harvest_and_send_to_exchanger(
+        ref self: TContractState,
+        reward_distributor_contract: ContractAddress,
+        entrypoint: felt252,
+        amount: u128,
+        proof: Span<felt252>,
+        calldata: Span<felt252>,
+    );
+    fn deposit_by_exchanger(ref self: TContractState, asset_addr: ContractAddress, assets: u256);
 }
