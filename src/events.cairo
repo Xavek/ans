@@ -27,3 +27,25 @@ pub struct SuffixAdminEvent {
     pub suffix_admin: ContractAddress,
     pub admin: ContractAddress,
 }
+
+
+#[derive(Debug, Drop, PartialEq, starknet::Event)]
+pub struct DepositToExchangerEvent {
+    pub exchanger: ContractAddress,
+    pub amount: u256,
+    pub token: ContractAddress,
+}
+
+#[derive(Debug, Drop, PartialEq, starknet::Event)]
+pub struct DepositByExchangerEvent {
+    pub exchanger: ContractAddress,
+    pub amount: u256,
+    pub token: ContractAddress,
+}
+
+#[derive(Debug, Drop, PartialEq, starknet::Event)]
+pub struct ProtocolFeeEvent {
+    pub receiver: ContractAddress,
+    pub amount: u256,
+    pub token: ContractAddress,
+}

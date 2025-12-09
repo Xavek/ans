@@ -66,3 +66,17 @@ pub trait IFeeInvest<TContractState> {
     );
     fn deposit_by_exchanger(ref self: TContractState, asset_addr: ContractAddress, assets: u256);
 }
+
+#[starknet::interface]
+pub trait IFeeAdmin<TContractState> {
+    fn add_config_addrs(
+        ref self: TContractState,
+        fee_receiver: ContractAddress,
+        harvest_addr: ContractAddress,
+        exchanger: ContractAddress,
+        reward_asset_addr: ContractAddress,
+    );
+    fn add_vesu_pools(
+        ref self: TContractState, asset: ContractAddress, vesu_vpool: ContractAddress, key: u8,
+    );
+}
