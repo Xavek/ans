@@ -1,6 +1,9 @@
 #[starknet::contract]
 mod Registry {
-    use ans::interface::{FeeInfo, IAdmin, IERC20Dispatcher, IERC20DispatcherTrait, IRegistry, Name};
+    use ans::interface::{
+        FeeInfo, IAdmin, IERC20Dispatcher, IERC20DispatcherTrait, IFeeInvestDispatcher,
+        IFeeInvestDispatcherTrait, IRegistry, Name,
+    };
     use ans::{errors, events};
     use core::num::traits::zero::Zero;
     use starknet::storage::{
@@ -159,6 +162,8 @@ mod Registry {
             let balance = dispatcher.balanceOf(get_contract_address());
             if (balance > 0) {
                 dispatcher.transfer(self.fee_investor.read(), balance);
+                IFeeInvestDispatcher { contract_address: self.fee_investor.read() }
+                    .deposit_fees(asset_addr);
             }
         }
     }
