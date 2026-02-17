@@ -45,7 +45,7 @@ ANS is a naming system on Starknet that breaks free from the traditional TLD (to
 Mint Fee (≥ 0)
     ├─→ 50% Protocol Fee Receiver
     └─→ 50% Vesu Earn Pools
-            └─→ Yield → Name Holders (every 30 days)
+            └─→ Yield → Claim directly on Vesu
 ```
 
 ## Restricted TLDs
