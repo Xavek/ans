@@ -55,26 +55,15 @@ pub trait IVesu<TContractState> {
 
 #[starknet::interface]
 pub trait IFeeInvest<TContractState> {
-    fn deposit_fees(ref self: TContractState, asset_addr: ContractAddress);
-    fn harvest_and_send_to_exchanger(
-        ref self: TContractState,
-        reward_distributor_contract: ContractAddress,
-        entrypoint: felt252,
-        amount: u128,
-        proof: Span<felt252>,
-        calldata: Span<felt252>,
+    fn deposit_fees(
+        ref self: TContractState, asset_addr: ContractAddress, receiver: ContractAddress,
     );
-    fn deposit_by_exchanger(ref self: TContractState, asset_addr: ContractAddress, assets: u256);
 }
 
 #[starknet::interface]
 pub trait IFeeAdmin<TContractState> {
     fn add_config_addrs(
-        ref self: TContractState,
-        fee_receiver: ContractAddress,
-        harvest_addr: ContractAddress,
-        exchanger: ContractAddress,
-        reward_asset_addr: ContractAddress,
+        ref self: TContractState, fee_receiver: ContractAddress, registry: ContractAddress,
     );
     fn add_vesu_pools(
         ref self: TContractState, asset: ContractAddress, vesu_vpool: ContractAddress, key: u8,
