@@ -18,3 +18,4 @@ pub const ZERO_ASSETS: felt252 = 'ZERO_ASSETS';
 pub const INVALID_EXCHANGER_ADDRS: felt252 = 'INVALID_EXCHANGER_ADDRS';
 pub const ZERO_KEY: felt252 = 'ZERO_KEY';
 pub const NOT_REGISTRY: felt252 = 'NOT_REGISTRY';
+pub const NOT_OWNER: felt252 = 'NOT_OWNER';

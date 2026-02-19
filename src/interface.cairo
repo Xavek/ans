@@ -68,4 +68,6 @@ pub trait IFeeAdmin<TContractState> {
     fn add_vesu_pools(
         ref self: TContractState, asset: ContractAddress, vesu_vpool: ContractAddress, key: u8,
     );
+
+    fn add_admin(ref self: TContractState, admin: ContractAddress);
 }
