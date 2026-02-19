@@ -55,6 +55,12 @@ mod FeeInvest {
             self.vesu_pools.write(key, vesu_vpool);
             self.asset_addr.write(asset, key);
         }
+
+        fn add_admin(ref self: ContractState, admin: ContractAddress) {
+            let caller = get_caller_address();
+            assert(caller == self.owner.read(), errors::NOT_OWNER);
+            self.admin.write(admin);
+        }
     }
 
     #[abi(embed_v0)]
