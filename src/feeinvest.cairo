@@ -66,17 +66,7 @@ mod FeeInvest {
             let asset_dispatcher = self.get_token_dispatcher(asset_addr);
             let balance = asset_dispatcher.balanceOf(get_contract_address());
             if (balance > 0) {
-                let amount = balance / 2;
-                asset_dispatcher.transfer(self.fee_receiver.read(), amount);
-                if (balance - amount > 0) {
-                    self.deposit_vesu_pool(asset_addr, balance - amount, receiver);
-                }
-                self
-                    .emit(
-                        events::ProtocolFeeEvent {
-                            receiver: self.fee_receiver.read(), amount: amount, token: asset_addr,
-                        },
-                    )
+                self.deposit_vesu_pool(asset_dispatcher, asset_addr, balance, receiver);
             }
         }
     }
@@ -92,6 +82,7 @@ mod FeeInvest {
 
         fn deposit_vesu_pool(
             ref self: ContractState,
+            erc20_dispatcher: IERC20Dispatcher,
             asset_addr: ContractAddress,
             amount: u256,
             receiver: ContractAddress,
@@ -99,7 +90,28 @@ mod FeeInvest {
             let pool_key = self.asset_addr.entry(asset_addr).read();
             let pool_address = self.vesu_pools.entry(pool_key).read();
             if (pool_address.is_non_zero()) {
-                self._handle_vesu_ops(amount, pool_address, asset_addr, receiver);
+                let fee_amount = amount / 2;
+                erc20_dispatcher.transfer(self.fee_receiver.read(), fee_amount);
+                if (amount - fee_amount > 0) {
+                    self._handle_vesu_ops(amount - fee_amount, pool_address, asset_addr, receiver);
+                }
+
+                self
+                    .emit(
+                        events::ProtocolFeeEvent {
+                            receiver: self.fee_receiver.read(),
+                            amount: fee_amount,
+                            token: asset_addr,
+                        },
+                    );
+            } else {
+                erc20_dispatcher.transfer(self.fee_receiver.read(), amount);
+                self
+                    .emit(
+                        events::ProtocolFeeEvent {
+                            receiver: self.fee_receiver.read(), amount: amount, token: asset_addr,
+                        },
+                    );
             }
         }
 
