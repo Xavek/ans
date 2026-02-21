@@ -1,5 +1,5 @@
-mod errors;
-mod events;
-mod feeinvest;
-mod interface;
-mod registry;
+pub mod errors;
+pub mod events;
+pub mod feeinvest;
+pub mod interface;
+pub mod registry;

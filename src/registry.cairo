@@ -33,6 +33,12 @@ mod Registry {
         SuffixAdminEvent: events::SuffixAdminEvent,
     }
 
+    #[constructor]
+    fn constructor(ref self: ContractState, admin: ContractAddress) {
+        assert(admin.is_non_zero(), errors::ZERO_ADMIN);
+        self.admin.write(admin);
+    }
+
     #[abi(embed_v0)]
     impl AdminImpl of IAdmin<ContractState> {
         fn add_fee_info(ref self: ContractState, suffix: felt252, fee_info: FeeInfo) {
