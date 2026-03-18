@@ -20,6 +20,7 @@ mod FeeInvest {
         admin: ContractAddress,
         owner: ContractAddress,
         registry: ContractAddress,
+        protocol_flag: bool,
     }
 
     #[event]
@@ -49,6 +50,7 @@ mod FeeInvest {
         fn add_vesu_pools(
             ref self: ContractState, asset: ContractAddress, vesu_vpool: ContractAddress, key: u8,
         ) {
+            self.protocol_flag_check();
             let caller = get_caller_address();
             assert(caller == self.admin.read(), errors::NOT_ADMIN);
             assert(key.is_non_zero(), errors::ZERO_KEY);
@@ -57,9 +59,16 @@ mod FeeInvest {
         }
 
         fn add_admin(ref self: ContractState, admin: ContractAddress) {
+            self.protocol_flag_check();
             let caller = get_caller_address();
             assert(caller == self.owner.read(), errors::NOT_OWNER);
             self.admin.write(admin);
+        }
+
+        fn update_protocol_flag(ref self: ContractState, flag: bool) {
+            let caller = get_caller_address();
+            assert(caller == self.admin.read(), errors::NOT_ADMIN);
+            self.protocol_flag.write(flag);
         }
     }
 
@@ -68,6 +77,7 @@ mod FeeInvest {
         fn deposit_fees(
             ref self: ContractState, asset_addr: ContractAddress, receiver: ContractAddress,
         ) {
+            self.protocol_flag_check();
             assert(get_caller_address() == self.registry.read(), errors::NOT_REGISTRY);
             let asset_dispatcher = self.get_token_dispatcher(asset_addr);
             let balance = asset_dispatcher.balanceOf(get_contract_address());
@@ -130,6 +140,10 @@ mod FeeInvest {
         ) {
             IERC20Dispatcher { contract_address: asset_addr }.approve(vesuVTokenAddress, amount);
             IVesuDispatcher { contract_address: vesuVTokenAddress }.deposit(amount, receiver);
+        }
+
+        fn protocol_flag_check(self: @ContractState) {
+            assert(self.protocol_flag.read(), errors::PROTOCOL_FLAG_FALSE);
         }
     }
 }
