@@ -121,13 +121,15 @@ mod Registry {
             self.not_registered(name, suffix);
             let caller = get_caller_address();
             let fee_struct = self.get_suffix_details(suffix);
-            self.take_fees(caller, fee_struct);
-            self.send_fees(caller, fee_struct.asset_addr);
+
             self.name_to_address.entry(suffix).write(name, caller);
             let count = self.address_name_count.entry(caller).entry(suffix).read();
             self.address_name_count.entry(caller).entry(suffix).write(count + 1);
             self.address_to_name.entry(caller).entry(suffix).write(count, name);
-        }
+
+            self.take_fees(caller, fee_struct);
+            self.send_fees(caller, fee_struct.asset_addr);
+                    }
 
         fn retrieve_address_from_name(
             self: @ContractState, name: felt252, suffix: felt252,
