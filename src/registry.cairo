@@ -2,7 +2,7 @@
 mod Registry {
     use ans::interface::{
         FeeInfo, IAdmin, IERC20Dispatcher, IERC20DispatcherTrait, IFeeInvestDispatcher,
-        IFeeInvestDispatcherTrait, IRegistry, Name,
+        IFeeInvestDispatcherTrait, IRegistry, Name, NameList,
     };
     use ans::{errors, events};
     use core::num::traits::zero::Zero;
@@ -18,6 +18,7 @@ mod Registry {
     struct Storage {
         name_to_address: Map<felt252, Map<felt252, ContractAddress>>,
         address_to_name: Map<ContractAddress, Map<felt252, felt252>>,
+        address_name_count: Map<ContractAddress, Map<felt252, u32>>,
         fee_info: Map<felt252, FeeInfo>,
         suffix_admin: Map<felt252, ContractAddress>,
         suffix_log: Map<felt252, u8>,
@@ -124,6 +125,8 @@ mod Registry {
             self.take_fees(caller, fee_struct);
             self.send_fees(caller, fee_struct.asset_addr);
             self.name_to_address.entry(suffix).write(name, caller);
+            let count = self.address_name_count.entry(caller).entry(suffix).read();
+            self.address_name_count.entry(caller).entry(suffix).write(count + 1);
             self.address_to_name.entry(caller).write(suffix, name);
         }
 
@@ -138,12 +141,21 @@ mod Registry {
 
         fn retrieve_name_from_address(
             self: @ContractState, addr: ContractAddress, suffix: felt252,
-        ) -> Name {
+        ) -> NameList {
             assert(addr.is_non_zero(), errors::ZERO_INPUT_ADDR);
             assert(suffix.is_non_zero(), errors::ZERO_SUFFIX);
 
-            let prefix = self.address_to_name.entry(addr).read(suffix);
-            Name { prefix: prefix, suffix: suffix }
+            let count = self.address_name_count.entry(addr).entry(suffix).read();
+            let mut names: Array<felt252> = ArrayTrait::new();
+            let mut index: u32 = 0;
+            loop {
+                if index >= count {
+                    break;
+                }
+                names.append(self.address_to_name.entry(addr).read(suffix));
+                index += 1;
+            }
+            NameList { names, suffix }
         }
     }
 
