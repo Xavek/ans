@@ -129,7 +129,7 @@ mod Registry {
 
             self.take_fees(caller, fee_struct);
             self.send_fees(caller, fee_struct.asset_addr);
-                    }
+        }
 
         fn retrieve_address_from_name(
             self: @ContractState, name: felt252, suffix: felt252,
