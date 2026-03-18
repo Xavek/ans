@@ -113,11 +113,10 @@ mod Registry {
 
     #[abi(embed_v0)]
     impl RegistryImpl of IRegistry<ContractState> {
-        fn register(ref self: ContractState, name: felt252, suffix: felt252, fee_key: felt252) {
+        fn register(ref self: ContractState, name: felt252, suffix: felt252) {
             assert(name.is_non_zero(), errors::ZERO_PREFIX);
             assert(suffix.is_non_zero(), errors::ZERO_SUFFIX);
             assert(suffix != PROHIBITED_SUFFIX, errors::PROHIBITED_SUFFIX);
-            assert(fee_key.is_non_zero(), errors::ZERO_FEE_KEY);
 
             self.not_registered(name, suffix);
             let caller = get_caller_address();

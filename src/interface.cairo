@@ -16,7 +16,7 @@ pub struct FeeInfo {
 #[starknet::interface]
 pub trait IRegistry<TContractState> {
     /// Register name to address
-    fn register(ref self: TContractState, name: felt252, suffix: felt252, fee_key: felt252);
+    fn register(ref self: TContractState, name: felt252, suffix: felt252);
     /// Retrieve name to address
     fn retrieve_address_from_name(
         self: @TContractState, name: felt252, suffix: felt252,
