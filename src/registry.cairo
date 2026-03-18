@@ -2,7 +2,7 @@
 mod Registry {
     use ans::interface::{
         FeeInfo, IAdmin, IERC20Dispatcher, IERC20DispatcherTrait, IFeeInvestDispatcher,
-        IFeeInvestDispatcherTrait, IRegistry, Name,
+        IFeeInvestDispatcherTrait, IRegistry, NameList,
     };
     use ans::{errors, events};
     use core::num::traits::zero::Zero;
@@ -17,7 +17,8 @@ mod Registry {
     #[storage]
     struct Storage {
         name_to_address: Map<felt252, Map<felt252, ContractAddress>>,
-        address_to_name: Map<ContractAddress, Map<felt252, felt252>>,
+        address_name_count: Map<ContractAddress, Map<felt252, u32>>,
+        address_to_name: Map<ContractAddress, Map<felt252, Map<u32, felt252>>>,
         fee_info: Map<felt252, FeeInfo>,
         suffix_admin: Map<felt252, ContractAddress>,
         suffix_log: Map<felt252, u8>,
@@ -112,19 +113,22 @@ mod Registry {
 
     #[abi(embed_v0)]
     impl RegistryImpl of IRegistry<ContractState> {
-        fn register(ref self: ContractState, name: felt252, suffix: felt252, fee_key: felt252) {
+        fn register(ref self: ContractState, name: felt252, suffix: felt252) {
             assert(name.is_non_zero(), errors::ZERO_PREFIX);
             assert(suffix.is_non_zero(), errors::ZERO_SUFFIX);
             assert(suffix != PROHIBITED_SUFFIX, errors::PROHIBITED_SUFFIX);
-            assert(fee_key.is_non_zero(), errors::ZERO_FEE_KEY);
 
             self.not_registered(name, suffix);
             let caller = get_caller_address();
             let fee_struct = self.get_suffix_details(suffix);
+
+            self.name_to_address.entry(suffix).write(name, caller);
+            let count = self.address_name_count.entry(caller).entry(suffix).read();
+            self.address_name_count.entry(caller).entry(suffix).write(count + 1);
+            self.address_to_name.entry(caller).entry(suffix).write(count, name);
+
             self.take_fees(caller, fee_struct);
             self.send_fees(caller, fee_struct.asset_addr);
-            self.name_to_address.entry(suffix).write(name, caller);
-            self.address_to_name.entry(caller).write(suffix, name);
         }
 
         fn retrieve_address_from_name(
@@ -138,12 +142,21 @@ mod Registry {
 
         fn retrieve_name_from_address(
             self: @ContractState, addr: ContractAddress, suffix: felt252,
-        ) -> Name {
+        ) -> NameList {
             assert(addr.is_non_zero(), errors::ZERO_INPUT_ADDR);
             assert(suffix.is_non_zero(), errors::ZERO_SUFFIX);
 
-            let prefix = self.address_to_name.entry(addr).read(suffix);
-            Name { prefix: prefix, suffix: suffix }
+            let count = self.address_name_count.entry(addr).entry(suffix).read();
+            let mut names: Array<felt252> = ArrayTrait::new();
+            let mut index: u32 = 0;
+            loop {
+                if index >= count {
+                    break;
+                }
+                names.append(self.address_to_name.entry(addr).entry(suffix).read(index));
+                index += 1;
+            }
+            NameList { names, suffix }
         }
     }
 

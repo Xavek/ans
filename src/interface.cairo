@@ -1,8 +1,8 @@
 use starknet::ContractAddress;
 
-#[derive(Copy, Drop, Serde, PartialEq)]
-pub struct Name {
-    pub prefix: felt252,
+#[derive(Drop, Serde)]
+pub struct NameList {
+    pub names: Array<felt252>,
     pub suffix: felt252,
 }
 
@@ -16,7 +16,7 @@ pub struct FeeInfo {
 #[starknet::interface]
 pub trait IRegistry<TContractState> {
     /// Register name to address
-    fn register(ref self: TContractState, name: felt252, suffix: felt252, fee_key: felt252);
+    fn register(ref self: TContractState, name: felt252, suffix: felt252);
     /// Retrieve name to address
     fn retrieve_address_from_name(
         self: @TContractState, name: felt252, suffix: felt252,
@@ -24,7 +24,7 @@ pub trait IRegistry<TContractState> {
     /// Retrieve name from address
     fn retrieve_name_from_address(
         self: @TContractState, addr: ContractAddress, suffix: felt252,
-    ) -> Name;
+    ) -> NameList;
 }
 
 #[starknet::interface]
