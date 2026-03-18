@@ -6,12 +6,6 @@ pub struct NameList {
     pub suffix: felt252,
 }
 
-#[derive(Copy, Drop, Serde, PartialEq)]
-pub struct Name {
-    pub prefix: felt252,
-    pub suffix: felt252,
-}
-
 #[derive(Copy, Drop, Serde, starknet::Store, PartialEq)]
 pub struct FeeInfo {
     pub asset_addr: ContractAddress,

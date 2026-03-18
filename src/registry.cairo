@@ -2,7 +2,7 @@
 mod Registry {
     use ans::interface::{
         FeeInfo, IAdmin, IERC20Dispatcher, IERC20DispatcherTrait, IFeeInvestDispatcher,
-        IFeeInvestDispatcherTrait, IRegistry, Name, NameList,
+        IFeeInvestDispatcherTrait, IRegistry, NameList,
     };
     use ans::{errors, events};
     use core::num::traits::zero::Zero;
