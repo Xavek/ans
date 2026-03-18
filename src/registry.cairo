@@ -17,8 +17,8 @@ mod Registry {
     #[storage]
     struct Storage {
         name_to_address: Map<felt252, Map<felt252, ContractAddress>>,
-        address_to_name: Map<ContractAddress, Map<felt252, felt252>>,
         address_name_count: Map<ContractAddress, Map<felt252, u32>>,
+        address_to_name: Map<ContractAddress, Map<felt252, Map<u32, felt252>>>,
         fee_info: Map<felt252, FeeInfo>,
         suffix_admin: Map<felt252, ContractAddress>,
         suffix_log: Map<felt252, u8>,
@@ -126,7 +126,7 @@ mod Registry {
             self.name_to_address.entry(suffix).write(name, caller);
             let count = self.address_name_count.entry(caller).entry(suffix).read();
             self.address_name_count.entry(caller).entry(suffix).write(count + 1);
-            self.address_to_name.entry(caller).write(suffix, name);
+            self.address_to_name.entry(caller).entry(suffix).write(count, name);
         }
 
         fn retrieve_address_from_name(
@@ -151,7 +151,7 @@ mod Registry {
                 if index >= count {
                     break;
                 }
-                names.append(self.address_to_name.entry(addr).read(suffix));
+                names.append(self.address_to_name.entry(addr).entry(suffix).read(index));
                 index += 1;
             }
             NameList { names, suffix }
