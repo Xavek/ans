@@ -43,6 +43,7 @@ pub trait IAdmin<TContractState> {
     fn complete_add_fee_info(ref self: TContractState, suffix: felt252, fee_info: FeeInfo);
     fn add_suffix_admin(ref self: TContractState, suffix: felt252, addr: ContractAddress);
     fn add_fee_investor(ref self: TContractState, addr: ContractAddress);
+    fn update_protocol_flag(ref self: TContractState, flag: bool);
 }
 
 #[starknet::interface]
@@ -71,4 +72,5 @@ pub trait IFeeAdmin<TContractState> {
     );
 
     fn add_admin(ref self: TContractState, admin: ContractAddress);
+    fn update_protocol_flag(ref self: TContractState, flag: bool);
 }

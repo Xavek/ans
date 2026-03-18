@@ -24,6 +24,7 @@ mod Registry {
         suffix_log: Map<felt252, u8>,
         admin: ContractAddress,
         fee_investor: ContractAddress,
+        protocol_flag: bool,
     }
 
     #[event]
@@ -67,6 +68,7 @@ mod Registry {
                 );
         }
         fn complete_add_fee_info(ref self: ContractState, suffix: felt252, fee_info: FeeInfo) {
+            self.protocol_flag_check();
             assert(suffix.is_non_zero(), errors::ZERO_SUFFIX);
             assert(suffix != PROHIBITED_SUFFIX, errors::PROHIBITED_SUFFIX);
             assert(fee_info.asset_addr.is_non_zero(), errors::FEE_ASSET_ZERO);
@@ -92,6 +94,7 @@ mod Registry {
                 );
         }
         fn add_suffix_admin(ref self: ContractState, suffix: felt252, addr: ContractAddress) {
+            self.protocol_flag_check();
             assert(suffix.is_non_zero(), errors::ZERO_SUFFIX);
             assert(addr.is_non_zero(), errors::ZERO_INPUT_ADDR);
             let caller = get_caller_address();
@@ -109,11 +112,18 @@ mod Registry {
             assert(caller == self.admin.read(), errors::NOT_ADMIN);
             self.fee_investor.write(addr);
         }
+
+        fn update_protocol_flag(ref self: ContractState, flag: bool) {
+            let caller = get_caller_address();
+            assert(caller == self.admin.read(), errors::NOT_ADMIN);
+            self.protocol_flag.write(flag);
+        }
     }
 
     #[abi(embed_v0)]
     impl RegistryImpl of IRegistry<ContractState> {
         fn register(ref self: ContractState, name: felt252, suffix: felt252) {
+            self.protocol_flag_check();
             assert(name.is_non_zero(), errors::ZERO_PREFIX);
             assert(suffix.is_non_zero(), errors::ZERO_SUFFIX);
             assert(suffix != PROHIBITED_SUFFIX, errors::PROHIBITED_SUFFIX);
@@ -188,11 +198,16 @@ mod Registry {
         ) {
             let dispatcher = IERC20Dispatcher { contract_address: asset_addr };
             let balance = dispatcher.balanceOf(get_contract_address());
+            let fee_investor = self.fee_investor.read();
             if (balance > 0) {
-                dispatcher.transfer(self.fee_investor.read(), balance);
-                IFeeInvestDispatcher { contract_address: self.fee_investor.read() }
+                dispatcher.transfer(fee_investor, balance);
+                IFeeInvestDispatcher { contract_address: fee_investor }
                     .deposit_fees(asset_addr, receiver);
             }
+        }
+
+        fn protocol_flag_check(self: @ContractState) {
+            assert(self.protocol_flag.read(), errors::PROTOCOL_FLAG_FALSE);
         }
     }
 }
