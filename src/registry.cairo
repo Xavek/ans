@@ -101,6 +101,13 @@ mod Registry {
                     events::SuffixAdminEvent { suffix: suffix, suffix_admin: addr, admin: caller },
                 );
         }
+
+        fn add_fee_investor(ref self: ContractState, addr: ContractAddress) {
+            assert(addr.is_non_zero(), errors::ZERO_INPUT_ADDR);
+            let caller = get_caller_address();
+            assert(caller == self.admin.read(), errors::NOT_ADMIN);
+            self.fee_investor.write(addr);
+        }
     }
 
     #[abi(embed_v0)]
@@ -113,7 +120,7 @@ mod Registry {
 
             self.not_registered(name, suffix);
             let caller = get_caller_address();
-            let fee_struct = self.get_suffix_details(fee_key);
+            let fee_struct = self.get_suffix_details(suffix);
             self.take_fees(caller, fee_struct);
             self.send_fees(caller, fee_struct.asset_addr);
             self.name_to_address.entry(suffix).write(name, caller);
@@ -147,8 +154,8 @@ mod Registry {
             assert(result.is_zero(), errors::ALREADY_REGISTERED_NAME);
         }
 
-        fn get_suffix_details(self: @ContractState, fee_key: felt252) -> FeeInfo {
-            let fee_struct = self.fee_info.read(fee_key);
+        fn get_suffix_details(self: @ContractState, suffix: felt252) -> FeeInfo {
+            let fee_struct = self.fee_info.read(suffix);
             assert(fee_struct.asset_addr.is_non_zero(), errors::FEE_NOT_SET);
             assert(fee_struct.flag, errors::FEE_NOT_SUPPORTED);
             fee_struct
