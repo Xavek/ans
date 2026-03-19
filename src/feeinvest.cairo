@@ -42,8 +42,7 @@ mod FeeInvest {
         fn add_config_addrs(
             ref self: ContractState, fee_receiver: ContractAddress, registry: ContractAddress,
         ) {
-            let caller = get_caller_address();
-            assert(caller == self.admin.read(), errors::NOT_ADMIN);
+            self.assert_is_admin();
             self.fee_receiver.write(fee_receiver);
             self.registry.write(registry);
         }
@@ -51,8 +50,7 @@ mod FeeInvest {
             ref self: ContractState, asset: ContractAddress, vesu_vpool: ContractAddress, key: u8,
         ) {
             self.protocol_flag_check();
-            let caller = get_caller_address();
-            assert(caller == self.admin.read(), errors::NOT_ADMIN);
+            self.assert_is_admin();
             assert(key.is_non_zero(), errors::ZERO_KEY);
             self.vesu_pools.write(key, vesu_vpool);
             self.asset_addr.write(asset, key);
@@ -66,8 +64,7 @@ mod FeeInvest {
         }
 
         fn update_protocol_flag(ref self: ContractState, flag: bool) {
-            let caller = get_caller_address();
-            assert(caller == self.admin.read(), errors::NOT_ADMIN);
+            self.assert_is_admin();
             self.protocol_flag.write(flag);
         }
     }
@@ -144,6 +141,11 @@ mod FeeInvest {
 
         fn protocol_flag_check(self: @ContractState) {
             assert(self.protocol_flag.read(), errors::PROTOCOL_FLAG_FALSE);
+        }
+
+        fn assert_is_admin(self: @ContractState) {
+            let caller = get_caller_address();
+            assert(caller == self.admin.read(), errors::NOT_ADMIN);
         }
     }
 }

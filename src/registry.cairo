@@ -97,25 +97,24 @@ mod Registry {
             self.protocol_flag_check();
             assert(suffix.is_non_zero(), errors::ZERO_SUFFIX);
             assert(addr.is_non_zero(), errors::ZERO_INPUT_ADDR);
-            let caller = get_caller_address();
-            assert(caller == self.admin.read(), errors::NOT_ADMIN);
+            self.assert_is_admin();
             self.suffix_admin.write(suffix, addr);
             self
                 .emit(
-                    events::SuffixAdminEvent { suffix: suffix, suffix_admin: addr, admin: caller },
+                    events::SuffixAdminEvent {
+                        suffix: suffix, suffix_admin: addr, admin: get_caller_address(),
+                    },
                 );
         }
 
         fn add_fee_investor(ref self: ContractState, addr: ContractAddress) {
             assert(addr.is_non_zero(), errors::ZERO_INPUT_ADDR);
-            let caller = get_caller_address();
-            assert(caller == self.admin.read(), errors::NOT_ADMIN);
+            self.assert_is_admin();
             self.fee_investor.write(addr);
         }
 
         fn update_protocol_flag(ref self: ContractState, flag: bool) {
-            let caller = get_caller_address();
-            assert(caller == self.admin.read(), errors::NOT_ADMIN);
+            self.assert_is_admin();
             self.protocol_flag.write(flag);
         }
     }
@@ -208,6 +207,11 @@ mod Registry {
 
         fn protocol_flag_check(self: @ContractState) {
             assert(self.protocol_flag.read(), errors::PROTOCOL_FLAG_FALSE);
+        }
+
+        fn assert_is_admin(self: @ContractState) {
+            let caller = get_caller_address();
+            assert(caller == self.admin.read(), errors::NOT_ADMIN);
         }
     }
 }
