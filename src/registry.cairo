@@ -64,6 +64,7 @@ mod Registry {
                         asset_addr: fee_info.asset_addr,
                         amount: fee_info.amount,
                         flag: fee_info.flag,
+                        rev_share_bps: fee_info.rev_share_bps,
                     },
                 );
         }
@@ -137,7 +138,13 @@ mod Registry {
             self.address_to_name.entry(caller).entry(suffix).write(count, name);
 
             self.take_fees(caller, fee_struct);
-            self.send_fees(caller, fee_struct.asset_addr);
+            self
+                .send_fees(
+                    caller,
+                    fee_struct.asset_addr,
+                    fee_struct.rev_share_bps,
+                    fee_struct.rev_share_receiver,
+                );
         }
 
         fn retrieve_address_from_name(
@@ -193,7 +200,11 @@ mod Registry {
         }
 
         fn send_fees(
-            ref self: ContractState, receiver: ContractAddress, asset_addr: ContractAddress,
+            ref self: ContractState,
+            receiver: ContractAddress,
+            asset_addr: ContractAddress,
+            rev_share: u256,
+            rev_share_receiver: ContractAddress,
         ) {
             let dispatcher = IERC20Dispatcher { contract_address: asset_addr };
             let balance = dispatcher.balanceOf(get_contract_address());
@@ -201,7 +212,7 @@ mod Registry {
             if (balance > 0) {
                 dispatcher.transfer(fee_investor, balance);
                 IFeeInvestDispatcher { contract_address: fee_investor }
-                    .deposit_fees(asset_addr, receiver);
+                    .deposit_fees(asset_addr, receiver, rev_share, rev_share_receiver);
             }
         }
 

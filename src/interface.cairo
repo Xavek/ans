@@ -11,6 +11,8 @@ pub struct FeeInfo {
     pub asset_addr: ContractAddress,
     pub amount: u256,
     pub flag: bool,
+    pub rev_share_bps: u256,
+    pub rev_share_receiver: ContractAddress,
 }
 
 #[starknet::interface]
@@ -58,7 +60,11 @@ pub trait IVesu<TContractState> {
 #[starknet::interface]
 pub trait IFeeInvest<TContractState> {
     fn deposit_fees(
-        ref self: TContractState, asset_addr: ContractAddress, receiver: ContractAddress,
+        ref self: TContractState,
+        asset_addr: ContractAddress,
+        receiver: ContractAddress,
+        rev_share: u256,
+        rev_share_receiver: ContractAddress,
     );
 }
 

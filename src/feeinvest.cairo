@@ -21,6 +21,8 @@ mod FeeInvest {
         owner: ContractAddress,
         registry: ContractAddress,
         protocol_flag: bool,
+        max_rev_share_bps: u256,
+        invest_bps: u256,
     }
 
     #[event]
@@ -35,6 +37,8 @@ mod FeeInvest {
         assert(owner.is_non_zero(), errors::ZERO_OWNER);
         self.admin.write(admin);
         self.owner.write(owner);
+        self.max_rev_share_bps.write(3000_u256);
+        self.invest_bps.write(4000_u256);
     }
 
     #[abi(embed_v0)]
@@ -72,14 +76,26 @@ mod FeeInvest {
     #[abi(embed_v0)]
     impl FeeInvestImpl of IFeeInvest<ContractState> {
         fn deposit_fees(
-            ref self: ContractState, asset_addr: ContractAddress, receiver: ContractAddress,
+            ref self: ContractState,
+            asset_addr: ContractAddress,
+            receiver: ContractAddress,
+            rev_share: u256,
+            rev_share_receiver: ContractAddress,
         ) {
             self.protocol_flag_check();
             assert(get_caller_address() == self.registry.read(), errors::NOT_REGISTRY);
             let asset_dispatcher = self.get_token_dispatcher(asset_addr);
             let balance = asset_dispatcher.balanceOf(get_contract_address());
             if (balance > 0) {
-                self.deposit_vesu_pool(asset_dispatcher, asset_addr, balance, receiver);
+                self
+                    .deposit_vesu_pool(
+                        asset_dispatcher,
+                        asset_addr,
+                        balance,
+                        receiver,
+                        rev_share,
+                        rev_share_receiver,
+                    );
             }
         }
     }
@@ -99,21 +115,30 @@ mod FeeInvest {
             asset_addr: ContractAddress,
             amount: u256,
             receiver: ContractAddress,
+            rev_share: u256,
+            rev_share_receiver: ContractAddress,
         ) {
             let pool_key = self.asset_addr.entry(asset_addr).read();
             let pool_address = self.vesu_pools.entry(pool_key).read();
             if (pool_address.is_non_zero()) {
-                let fee_amount = amount / 2;
-                erc20_dispatcher.transfer(self.fee_receiver.read(), fee_amount);
-                if (amount - fee_amount > 0) {
-                    self._handle_vesu_ops(amount - fee_amount, pool_address, asset_addr, receiver);
+                let (invest_amount, rev_share_amount, protocol_fee_amount) = self
+                    ._calculate_amounts(amount, rev_share);
+                if (invest_amount > 0) {
+                    self._handle_vesu_ops(invest_amount, pool_address, asset_addr, receiver);
+                }
+                if (protocol_fee_amount > 0) {
+                    erc20_dispatcher.transfer(self.fee_receiver.read(), protocol_fee_amount);
+                }
+
+                if (rev_share_amount > 0) {
+                    erc20_dispatcher.transfer(rev_share_receiver, rev_share_amount);
                 }
 
                 self
                     .emit(
                         events::ProtocolFeeEvent {
                             receiver: self.fee_receiver.read(),
-                            amount: fee_amount,
+                            amount: protocol_fee_amount,
                             token: asset_addr,
                         },
                     );
@@ -146,6 +171,20 @@ mod FeeInvest {
         fn assert_is_admin(self: @ContractState) {
             let caller = get_caller_address();
             assert(caller == self.admin.read(), errors::NOT_ADMIN);
+        }
+
+        fn _calculate_amounts(
+            self: @ContractState, amount: u256, rev_share: u256,
+        ) -> (u256, u256, u256) {
+            let invest_amount = amount * self.invest_bps.read() / 10000_u256;
+            if (rev_share > 0) {
+                let rev_share_amount = amount * rev_share / 10000_u256;
+                let protocol_fee_receiver = amount - invest_amount - rev_share_amount;
+                (invest_amount, rev_share_amount, protocol_fee_receiver)
+            } else {
+                let protocol_fee_receiver = amount - invest_amount;
+                (invest_amount, 0_u256, protocol_fee_receiver)
+            }
         }
     }
 }
