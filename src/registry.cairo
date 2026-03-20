@@ -25,6 +25,7 @@ mod Registry {
         admin: ContractAddress,
         fee_investor: ContractAddress,
         protocol_flag: bool,
+        max_rev_share_bps: u256,
     }
 
     #[event]
@@ -39,6 +40,7 @@ mod Registry {
     fn constructor(ref self: ContractState, admin: ContractAddress) {
         assert(admin.is_non_zero(), errors::ZERO_ADMIN);
         self.admin.write(admin);
+        self.max_rev_share_bps.write(3000_u256);
     }
 
     #[abi(embed_v0)]
@@ -48,6 +50,10 @@ mod Registry {
             assert(suffix != PROHIBITED_SUFFIX, errors::PROHIBITED_SUFFIX);
             assert(fee_info.asset_addr.is_non_zero(), errors::FEE_ASSET_ZERO);
             assert(fee_info.flag == true, errors::FEE_FLAG_INVALID);
+            assert(fee_info.rev_share_receiver.is_non_zero(), errors::ZERO_REV_SHARE_RECEIV);
+            assert(
+                fee_info.rev_share_bps <= self.max_rev_share_bps.read(), errors::INVALID_REV_BPS,
+            );
 
             let caller = get_caller_address();
             let suffix_admin_addr = self.suffix_admin.read(suffix);
@@ -64,6 +70,8 @@ mod Registry {
                         asset_addr: fee_info.asset_addr,
                         amount: fee_info.amount,
                         flag: fee_info.flag,
+                        rev_share_bps: fee_info.rev_share_bps,
+                        rev_share_receiver: fee_info.rev_share_receiver,
                     },
                 );
         }
@@ -137,7 +145,13 @@ mod Registry {
             self.address_to_name.entry(caller).entry(suffix).write(count, name);
 
             self.take_fees(caller, fee_struct);
-            self.send_fees(caller, fee_struct.asset_addr);
+            self
+                .send_fees(
+                    caller,
+                    fee_struct.asset_addr,
+                    fee_struct.rev_share_bps,
+                    fee_struct.rev_share_receiver,
+                );
         }
 
         fn retrieve_address_from_name(
@@ -193,7 +207,11 @@ mod Registry {
         }
 
         fn send_fees(
-            ref self: ContractState, receiver: ContractAddress, asset_addr: ContractAddress,
+            ref self: ContractState,
+            receiver: ContractAddress,
+            asset_addr: ContractAddress,
+            rev_share: u256,
+            rev_share_receiver: ContractAddress,
         ) {
             let dispatcher = IERC20Dispatcher { contract_address: asset_addr };
             let balance = dispatcher.balanceOf(get_contract_address());
@@ -201,7 +219,7 @@ mod Registry {
             if (balance > 0) {
                 dispatcher.transfer(fee_investor, balance);
                 IFeeInvestDispatcher { contract_address: fee_investor }
-                    .deposit_fees(asset_addr, receiver);
+                    .deposit_fees(asset_addr, receiver, rev_share, rev_share_receiver);
             }
         }
 

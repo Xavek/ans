@@ -20,3 +20,5 @@ pub const ZERO_KEY: felt252 = 'ZERO_KEY';
 pub const NOT_REGISTRY: felt252 = 'NOT_REGISTRY';
 pub const NOT_OWNER: felt252 = 'NOT_OWNER';
 pub const PROTOCOL_FLAG_FALSE: felt252 = 'PROTOCOL_FLAG_FALSE';
+pub const ZERO_REV_SHARE_RECEIV: felt252 = 'ZERO_REV_SHARE_RECEIV';
+pub const INVALID_REV_BPS: felt252 = 'INVALID_REV_BPS';
