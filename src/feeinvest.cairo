@@ -21,7 +21,6 @@ mod FeeInvest {
         owner: ContractAddress,
         registry: ContractAddress,
         protocol_flag: bool,
-        max_rev_share_bps: u256,
         invest_bps: u256,
     }
 
@@ -37,7 +36,6 @@ mod FeeInvest {
         assert(owner.is_non_zero(), errors::ZERO_OWNER);
         self.admin.write(admin);
         self.owner.write(owner);
-        self.max_rev_share_bps.write(3000_u256);
         self.invest_bps.write(4000_u256);
     }
 

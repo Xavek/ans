@@ -9,6 +9,7 @@ pub struct FeeInfoEvent {
     pub amount: u256,
     pub flag: bool,
     pub rev_share_bps: u256,
+    pub rev_share_receiver: ContractAddress
 }
 
 #[derive(Debug, Drop, PartialEq, starknet::Event)]
