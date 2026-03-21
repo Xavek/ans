@@ -125,6 +125,36 @@ mod Registry {
             self.assert_is_admin();
             self.protocol_flag.write(flag);
         }
+
+        fn update_rev_share_bps(ref self: ContractState, suffix: felt252, rev_share_bps: u256) {
+            self.protocol_flag_check();
+            assert(suffix.is_non_zero(), errors::ZERO_SUFFIX);
+            let suffix_admin = self.suffix_admin.read(suffix);
+            assert(get_caller_address() == suffix_admin, errors::INVALID_SUFFIX_ADMIN);
+            assert(rev_share_bps <= self.max_rev_share_bps.read(), errors::INVALID_REV_BPS);
+            let suffix_log = self.suffix_log.read(suffix);
+            assert(suffix_log == 1_u8, errors::SUFFIX_NOT_REG);
+
+            let mut fee_info = self.fee_info.read(suffix);
+            fee_info.rev_share_bps = rev_share_bps;
+            self.fee_info.write(suffix, fee_info);
+        }
+
+
+        fn update_rev_share_receiver(
+            ref self: ContractState, suffix: felt252, receiver: ContractAddress,
+        ) {
+            self.protocol_flag_check();
+            assert(suffix.is_non_zero(), errors::ZERO_SUFFIX);
+            let suffix_admin = self.suffix_admin.read(suffix);
+            assert(get_caller_address() == suffix_admin, errors::INVALID_SUFFIX_ADMIN);
+            let suffix_log = self.suffix_log.read(suffix);
+            assert(suffix_log == 1_u8, errors::SUFFIX_NOT_REG);
+
+            let mut fee_info = self.fee_info.read(suffix);
+            fee_info.rev_share_receiver = receiver;
+            self.fee_info.write(suffix, fee_info);
+        }
     }
 
     #[abi(embed_v0)]
@@ -134,6 +164,9 @@ mod Registry {
             assert(name.is_non_zero(), errors::ZERO_PREFIX);
             assert(suffix.is_non_zero(), errors::ZERO_SUFFIX);
             assert(suffix != PROHIBITED_SUFFIX, errors::PROHIBITED_SUFFIX);
+
+            let suffix_log = self.suffix_log.read(suffix);
+            assert(suffix_log == 1_u8, errors::SUFFIX_NOT_REG);
 
             self.not_registered(name, suffix);
             let caller = get_caller_address();
@@ -180,6 +213,27 @@ mod Registry {
                 index += 1;
             }
             NameList { names, suffix }
+        }
+
+        fn get_suffix_fee_details(self: @ContractState, suffix: felt252) -> FeeInfo {
+            self.fee_info.read(suffix)
+        }
+
+        fn gets_suffix_admin(self: @ContractState, suffix: felt252) -> ContractAddress {
+            self.suffix_admin.read(suffix)
+        }
+
+        fn is_suffix_registered(self: @ContractState, suffix: felt252) -> bool {
+            let suffix_log = self.suffix_log.read(suffix);
+            if (suffix_log == 1_u8) {
+                true
+            } else {
+                false
+            }
+        }
+
+        fn protocol_status(self: @ContractState) -> bool {
+            self.protocol_flag.read()
         }
     }
 

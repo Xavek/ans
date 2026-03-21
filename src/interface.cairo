@@ -27,6 +27,11 @@ pub trait IRegistry<TContractState> {
     fn retrieve_name_from_address(
         self: @TContractState, addr: ContractAddress, suffix: felt252,
     ) -> NameList;
+    fn get_suffix_fee_details(self: @TContractState, suffix: felt252) -> FeeInfo;
+
+    fn gets_suffix_admin(self: @TContractState, suffix: felt252) -> ContractAddress;
+    fn is_suffix_registered(self: @TContractState, suffix: felt252) -> bool;
+    fn protocol_status(self: @TContractState) -> bool;
 }
 
 #[starknet::interface]
@@ -46,6 +51,10 @@ pub trait IAdmin<TContractState> {
     fn add_suffix_admin(ref self: TContractState, suffix: felt252, addr: ContractAddress);
     fn add_fee_investor(ref self: TContractState, addr: ContractAddress);
     fn update_protocol_flag(ref self: TContractState, flag: bool);
+    fn update_rev_share_bps(ref self: TContractState, suffix: felt252, rev_share_bps: u256);
+    fn update_rev_share_receiver(
+        ref self: TContractState, suffix: felt252, receiver: ContractAddress,
+    );
 }
 
 #[starknet::interface]
