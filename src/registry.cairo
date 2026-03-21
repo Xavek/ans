@@ -125,6 +125,32 @@ mod Registry {
             self.assert_is_admin();
             self.protocol_flag.write(flag);
         }
+
+        fn update_rev_share_bps(ref self: ContractState, suffix: felt252, rev_share_bps: u256) {
+            self.protocol_flag_check();
+            let suffix_admin = self.suffix_admin.read(suffix);
+            assert(get_caller_address() == suffix_admin, errors::INVALID_SUFFIX_ADMIN);
+            assert(rev_share_bps <= self.max_rev_share_bps.read(), errors::INVALID_REV_BPS);
+            let suffix_log = self.suffix_log.read(suffix);
+            assert(suffix_log == 1_u8, errors::SUFFIX_NOT_REG);
+            
+            let mut fee_info = self.fee_info.read(suffix);
+            fee_info.rev_share_bps = rev_share_bps;
+            self.fee_info.write(suffix, fee_info);
+        }
+
+
+        fn update_rev_share_receiver(ref self: ContractState, suffix: felt252, receiver: ContractAddress) {
+            self.protocol_flag_check();
+            let suffix_admin = self.suffix_admin.read(suffix);
+            assert(get_caller_address() == suffix_admin, errors::INVALID_SUFFIX_ADMIN);
+            let suffix_log = self.suffix_log.read(suffix);
+            assert(suffix_log == 1_u8, errors::SUFFIX_NOT_REG);
+            
+            let mut fee_info = self.fee_info.read(suffix);
+            fee_info.rev_share_receiver = receiver;
+            self.fee_info.write(suffix, fee_info);
+        }
     }
 
     #[abi(embed_v0)]

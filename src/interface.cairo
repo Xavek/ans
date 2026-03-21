@@ -46,6 +46,8 @@ pub trait IAdmin<TContractState> {
     fn add_suffix_admin(ref self: TContractState, suffix: felt252, addr: ContractAddress);
     fn add_fee_investor(ref self: TContractState, addr: ContractAddress);
     fn update_protocol_flag(ref self: TContractState, flag: bool);
+    fn update_rev_share_bps(ref self: TContractState, suffix: felt252, rev_share_bps: u256);
+    fn update_rev_share_receiver(ref self: TContractState, suffix: felt252, receiver: ContractAddress);
 }
 
 #[starknet::interface]
