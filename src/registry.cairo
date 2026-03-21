@@ -128,6 +128,7 @@ mod Registry {
 
         fn update_rev_share_bps(ref self: ContractState, suffix: felt252, rev_share_bps: u256) {
             self.protocol_flag_check();
+            assert(suffix.is_non_zero(), errors::ZERO_SUFFIX);
             let suffix_admin = self.suffix_admin.read(suffix);
             assert(get_caller_address() == suffix_admin, errors::INVALID_SUFFIX_ADMIN);
             assert(rev_share_bps <= self.max_rev_share_bps.read(), errors::INVALID_REV_BPS);
@@ -142,6 +143,7 @@ mod Registry {
 
         fn update_rev_share_receiver(ref self: ContractState, suffix: felt252, receiver: ContractAddress) {
             self.protocol_flag_check();
+            assert(suffix.is_non_zero(), errors::ZERO_SUFFIX);
             let suffix_admin = self.suffix_admin.read(suffix);
             assert(get_caller_address() == suffix_admin, errors::INVALID_SUFFIX_ADMIN);
             let suffix_log = self.suffix_log.read(suffix);
@@ -226,6 +228,10 @@ mod Registry {
             } else {
                 false
             }
+        }
+
+        fn protocol_status(self: @ContractState) -> bool {
+            self.protocol_flag.read()
         }
 
     }
