@@ -161,6 +161,9 @@ mod Registry {
             assert(suffix.is_non_zero(), errors::ZERO_SUFFIX);
             assert(suffix != PROHIBITED_SUFFIX, errors::PROHIBITED_SUFFIX);
 
+            let suffix_log = self.suffix_log.read(suffix);
+            assert(suffix_log == 1_u8, errors::SUFFIX_NOT_REG);
+            
             self.not_registered(name, suffix);
             let caller = get_caller_address();
             let fee_struct = self.get_suffix_details(suffix);
@@ -207,6 +210,24 @@ mod Registry {
             }
             NameList { names, suffix }
         }
+
+        fn get_suffix_fee_details(self: @ContractState, suffix:felt252) -> FeeInfo {
+            self.fee_info.read(suffix)
+        }
+
+        fn gets_suffix_admin(self: @ContractState, suffix: felt252) -> ContractAddress {
+            self.suffix_admin.read(suffix)
+        }
+
+        fn is_suffix_registered(self: @ContractState, suffix: felt252) -> bool {
+            let suffix_log = self.suffix_log.read(suffix);
+            if(suffix_log == 1_u8) {
+                true
+            } else {
+                false
+            }
+        }
+
     }
 
     #[generate_trait]

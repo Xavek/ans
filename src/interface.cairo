@@ -27,6 +27,10 @@ pub trait IRegistry<TContractState> {
     fn retrieve_name_from_address(
         self: @TContractState, addr: ContractAddress, suffix: felt252,
     ) -> NameList;
+    fn get_suffix_fee_details(self: @TContractState, suffix:felt252) -> FeeInfo;
+
+    fn gets_suffix_admin(self: @TContractState, suffix: felt252) -> ContractAddress;
+    fn is_suffix_registered(self: @TContractState, suffix: felt252) -> bool;
 }
 
 #[starknet::interface]
