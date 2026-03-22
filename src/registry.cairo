@@ -19,6 +19,7 @@ mod Registry {
         name_to_address: Map<felt252, Map<felt252, ContractAddress>>,
         address_name_count: Map<ContractAddress, Map<felt252, u32>>,
         address_to_name: Map<ContractAddress, Map<felt252, Map<u32, felt252>>>,
+        suffix_mint_count: Map<felt252, u64>,
         fee_info: Map<felt252, FeeInfo>,
         suffix_admin: Map<felt252, ContractAddress>,
         suffix_log: Map<felt252, u8>,
@@ -176,6 +177,10 @@ mod Registry {
             let count = self.address_name_count.entry(caller).entry(suffix).read();
             self.address_name_count.entry(caller).entry(suffix).write(count + 1);
             self.address_to_name.entry(caller).entry(suffix).write(count, name);
+            self
+                .suffix_mint_count
+                .entry(suffix)
+                .write(self.suffix_mint_count.entry(suffix).read() + 1);
 
             self.take_fees(caller, fee_struct);
             self
@@ -230,6 +235,10 @@ mod Registry {
             } else {
                 false
             }
+        }
+        fn get_suffix_mint_count(self: @ContractState, suffix: felt252) -> u64 {
+            assert(suffix.is_non_zero(), errors::ZERO_SUFFIX);
+            self.suffix_mint_count.read(suffix)
         }
 
         fn protocol_status(self: @ContractState) -> bool {
