@@ -1077,6 +1077,35 @@ fn test_protocol_status_disabled() {
     assert(status == false, 'should be disabled');
 }
 
+#[test]
+fn test_get_suffix_mint_count_initial() {
+    let reg_contract = declare("Registry").unwrap().contract_class();
+    let mut calldata = array![];
+    Serde::serialize(@ADMIN(), ref calldata);
+    let (registry, _) = reg_contract.deploy(@calldata).unwrap();
+
+    let reg_dispatcher = IRegistryDispatcher { contract_address: registry };
+    let count = reg_dispatcher.get_suffix_mint_count('eth');
+    assert(count == 0, 'initial count should be zero');
+}
+
+#[test]
+fn test_get_suffix_mint_count_zero_suffix() {
+    let reg_contract = declare("Registry").unwrap().contract_class();
+    let mut calldata = array![];
+    Serde::serialize(@ADMIN(), ref calldata);
+    let (registry, _) = reg_contract.deploy(@calldata).unwrap();
+
+    let dispatcher = IRegistrySafeDispatcher { contract_address: registry };
+    match dispatcher.get_suffix_mint_count(0) {
+        Result::Ok(_) => core::panic_with_felt252('Should revert'),
+        Result::Err(x) => {
+            let err_data = x;
+            assert(err_data.at(0) == @'ZERO_SUFFIX', 'wrong error');
+        },
+    };
+}
+
 // ============ REVENUE SHARE TESTS ============
 
 #[test]

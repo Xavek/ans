@@ -31,6 +31,7 @@ pub trait IRegistry<TContractState> {
 
     fn gets_suffix_admin(self: @TContractState, suffix: felt252) -> ContractAddress;
     fn is_suffix_registered(self: @TContractState, suffix: felt252) -> bool;
+    fn get_suffix_mint_count(self: @TContractState, suffix: felt252) -> u64;
     fn protocol_status(self: @TContractState) -> bool;
 }
 
