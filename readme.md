@@ -26,11 +26,11 @@ ANS is a naming system on Starknet that breaks free from the traditional TLD (to
 - If you want those, go to their respective platforms
 - We play nice with the neighbors
 
-**💰 Community-First Economics**
+**💰 Community-First Economics with Revenue Share**
 - Mint fees start as low as **zero**
-- 50% goes to protocol fee receiver
-- 50% flows into Vesu earn pools
-- Future yield distributed to name holders every 30 days
+- Suffix admins now earn revenue share from their TLDs
+- Portion of fees flows to suffix administrators
+- Remainder splits between protocol fee receiver and Vesu earn pools
 
 ## How It Works
 
@@ -43,8 +43,9 @@ ANS is a naming system on Starknet that breaks free from the traditional TLD (to
 
 ```
 Mint Fee (≥ 0)
-    ├─→ 50% Protocol Fee Receiver
-    └─→ 50% Vesu Earn Pools
+    ├─→ Suffix Admin Revenue Share (configurable)
+    ├─→ Protocol Fee Receiver
+    └─→ Vesu Earn Pools
             └─→ Yield → Claim directly on Vesu
 ```
 
