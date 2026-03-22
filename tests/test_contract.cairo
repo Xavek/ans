@@ -218,7 +218,13 @@ fn test_complete_add_fee_info() {
     let token_contract = declare("mock_token").unwrap().contract_class();
     let (token, _) = token_contract.deploy(@ArrayTrait::new()).unwrap();
 
-    let fee_info = FeeInfo { asset_addr: token, amount: 100_u256, flag: true, rev_share_bps: 1000_u256, rev_share_receiver: USER() };
+    let fee_info = FeeInfo {
+        asset_addr: token,
+        amount: 100_u256,
+        flag: true,
+        rev_share_bps: 1000_u256,
+        rev_share_receiver: USER(),
+    };
 
     start_cheat_caller_address(registry, ADMIN());
     let dispatcher = IAdminDispatcher { contract_address: registry };
@@ -235,7 +241,13 @@ fn test_complete_add_fee_info_zero_asset() {
     let (registry, _) = reg_contract.deploy(@reg_calldata).unwrap();
 
     let zero: ContractAddress = Zero::zero();
-    let fee_info = FeeInfo { asset_addr: zero, amount: 100_u256, flag: true, rev_share_bps: 1000_u256, rev_share_receiver: USER() };
+    let fee_info = FeeInfo {
+        asset_addr: zero,
+        amount: 100_u256,
+        flag: true,
+        rev_share_bps: 1000_u256,
+        rev_share_receiver: USER(),
+    };
 
     start_cheat_caller_address(registry, ADMIN());
     let admin_dispatcher = IAdminDispatcher { contract_address: registry };
@@ -262,7 +274,13 @@ fn test_complete_add_fee_info_invalid_flag() {
     let token_contract = declare("mock_token").unwrap().contract_class();
     let (token, _) = token_contract.deploy(@ArrayTrait::new()).unwrap();
 
-    let fee_info = FeeInfo { asset_addr: token, amount: 100_u256, flag: false, rev_share_bps: 1000_u256, rev_share_receiver: USER() };
+    let fee_info = FeeInfo {
+        asset_addr: token,
+        amount: 100_u256,
+        flag: false,
+        rev_share_bps: 1000_u256,
+        rev_share_receiver: USER(),
+    };
 
     start_cheat_caller_address(registry, ADMIN());
     let admin_dispatcher = IAdminDispatcher { contract_address: registry };
@@ -289,7 +307,13 @@ fn test_complete_add_fee_info_prohibited_suffix() {
     let token_contract = declare("mock_token").unwrap().contract_class();
     let (token, _) = token_contract.deploy(@ArrayTrait::new()).unwrap();
 
-    let fee_info = FeeInfo { asset_addr: token, amount: 100_u256, flag: true, rev_share_bps: 1000_u256, rev_share_receiver: USER() };
+    let fee_info = FeeInfo {
+        asset_addr: token,
+        amount: 100_u256,
+        flag: true,
+        rev_share_bps: 1000_u256,
+        rev_share_receiver: USER(),
+    };
 
     start_cheat_caller_address(registry, ADMIN());
     let admin_dispatcher = IAdminDispatcher { contract_address: registry };
@@ -316,7 +340,13 @@ fn test_add_fee_info() {
     let token_contract = declare("mock_token").unwrap().contract_class();
     let (token, _) = token_contract.deploy(@ArrayTrait::new()).unwrap();
 
-    let fee_info = FeeInfo { asset_addr: token, amount: 100_u256, flag: true, rev_share_bps: 1000_u256, rev_share_receiver: USER() };
+    let fee_info = FeeInfo {
+        asset_addr: token,
+        amount: 100_u256,
+        flag: true,
+        rev_share_bps: 1000_u256,
+        rev_share_receiver: USER(),
+    };
 
     start_cheat_caller_address(registry, ADMIN());
     let admin_dispatcher = IAdminDispatcher { contract_address: registry };
@@ -635,7 +665,13 @@ fn test_complete_add_fee_info_flag_disabled() {
     let token_contract = declare("mock_token").unwrap().contract_class();
     let (token, _) = token_contract.deploy(@ArrayTrait::new()).unwrap();
 
-    let fee_info = FeeInfo { asset_addr: token, amount: 100_u256, flag: true, rev_share_bps: 1000_u256, rev_share_receiver: USER() };
+    let fee_info = FeeInfo {
+        asset_addr: token,
+        amount: 100_u256,
+        flag: true,
+        rev_share_bps: 1000_u256,
+        rev_share_receiver: USER(),
+    };
 
     let dispatcher = IAdminSafeDispatcher { contract_address: registry };
     match dispatcher.complete_add_fee_info('eth', fee_info) {
@@ -901,7 +937,13 @@ fn test_get_suffix_fee_details() {
     let token_contract = declare("mock_token").unwrap().contract_class();
     let (token, _) = token_contract.deploy(@ArrayTrait::new()).unwrap();
 
-    let fee_info = FeeInfo { asset_addr: token, amount: 100_u256, flag: true, rev_share_bps: 1000_u256, rev_share_receiver: USER() };
+    let fee_info = FeeInfo {
+        asset_addr: token,
+        amount: 100_u256,
+        flag: true,
+        rev_share_bps: 1000_u256,
+        rev_share_receiver: USER(),
+    };
 
     start_cheat_caller_address(registry, ADMIN());
     let admin_dispatcher = IAdminDispatcher { contract_address: registry };
@@ -975,7 +1017,13 @@ fn test_is_suffix_registered_true() {
     let token_contract = declare("mock_token").unwrap().contract_class();
     let (token, _) = token_contract.deploy(@ArrayTrait::new()).unwrap();
 
-    let fee_info = FeeInfo { asset_addr: token, amount: 100_u256, flag: true, rev_share_bps: 1000_u256, rev_share_receiver: USER() };
+    let fee_info = FeeInfo {
+        asset_addr: token,
+        amount: 100_u256,
+        flag: true,
+        rev_share_bps: 1000_u256,
+        rev_share_receiver: USER(),
+    };
 
     start_cheat_caller_address(registry, ADMIN());
     let admin_dispatcher = IAdminDispatcher { contract_address: registry };
@@ -1041,7 +1089,13 @@ fn test_update_rev_share_bps() {
     let token_contract = declare("mock_token").unwrap().contract_class();
     let (token, _) = token_contract.deploy(@ArrayTrait::new()).unwrap();
 
-    let fee_info = FeeInfo { asset_addr: token, amount: 100_u256, flag: true, rev_share_bps: 1000_u256, rev_share_receiver: USER() };
+    let fee_info = FeeInfo {
+        asset_addr: token,
+        amount: 100_u256,
+        flag: true,
+        rev_share_bps: 1000_u256,
+        rev_share_receiver: USER(),
+    };
 
     start_cheat_caller_address(registry, ADMIN());
     let admin_dispatcher = IAdminDispatcher { contract_address: registry };
@@ -1070,7 +1124,13 @@ fn test_update_rev_share_bps_not_suffix_admin() {
     let token_contract = declare("mock_token").unwrap().contract_class();
     let (token, _) = token_contract.deploy(@ArrayTrait::new()).unwrap();
 
-    let fee_info = FeeInfo { asset_addr: token, amount: 100_u256, flag: true, rev_share_bps: 1000_u256, rev_share_receiver: USER() };
+    let fee_info = FeeInfo {
+        asset_addr: token,
+        amount: 100_u256,
+        flag: true,
+        rev_share_bps: 1000_u256,
+        rev_share_receiver: USER(),
+    };
 
     start_cheat_caller_address(registry, ADMIN());
     let admin_dispatcher = IAdminDispatcher { contract_address: registry };
@@ -1087,7 +1147,7 @@ fn test_update_rev_share_bps_not_suffix_admin() {
             let err_data = x;
             assert(err_data.at(0) == @'INVALID_SUFFIX_ADMIN', 'wrong error');
         },
-    };
+    }
     stop_cheat_caller_address(registry);
 }
 
@@ -1101,7 +1161,13 @@ fn test_update_rev_share_bps_exceeds_max() {
     let token_contract = declare("mock_token").unwrap().contract_class();
     let (token, _) = token_contract.deploy(@ArrayTrait::new()).unwrap();
 
-    let fee_info = FeeInfo { asset_addr: token, amount: 100_u256, flag: true, rev_share_bps: 1000_u256, rev_share_receiver: USER() };
+    let fee_info = FeeInfo {
+        asset_addr: token,
+        amount: 100_u256,
+        flag: true,
+        rev_share_bps: 1000_u256,
+        rev_share_receiver: USER(),
+    };
 
     start_cheat_caller_address(registry, ADMIN());
     let admin_dispatcher = IAdminDispatcher { contract_address: registry };
@@ -1118,7 +1184,7 @@ fn test_update_rev_share_bps_exceeds_max() {
             let err_data = x;
             assert(err_data.at(0) == @'INVALID_REV_BPS', 'wrong error');
         },
-    };
+    }
     stop_cheat_caller_address(registry);
 }
 
@@ -1143,7 +1209,7 @@ fn test_update_rev_share_bps_suffix_not_registered() {
             let err_data = x;
             assert(err_data.at(0) == @'SUFFIX_NOT_REG', 'wrong error');
         },
-    };
+    }
     stop_cheat_caller_address(registry);
 }
 
@@ -1157,7 +1223,13 @@ fn test_update_rev_share_receiver() {
     let token_contract = declare("mock_token").unwrap().contract_class();
     let (token, _) = token_contract.deploy(@ArrayTrait::new()).unwrap();
 
-    let fee_info = FeeInfo { asset_addr: token, amount: 100_u256, flag: true, rev_share_bps: 1000_u256, rev_share_receiver: USER() };
+    let fee_info = FeeInfo {
+        asset_addr: token,
+        amount: 100_u256,
+        flag: true,
+        rev_share_bps: 1000_u256,
+        rev_share_receiver: USER(),
+    };
 
     start_cheat_caller_address(registry, ADMIN());
     let admin_dispatcher = IAdminDispatcher { contract_address: registry };
@@ -1187,7 +1259,13 @@ fn test_update_rev_share_receiver_not_suffix_admin() {
     let token_contract = declare("mock_token").unwrap().contract_class();
     let (token, _) = token_contract.deploy(@ArrayTrait::new()).unwrap();
 
-    let fee_info = FeeInfo { asset_addr: token, amount: 100_u256, flag: true, rev_share_bps: 1000_u256, rev_share_receiver: USER() };
+    let fee_info = FeeInfo {
+        asset_addr: token,
+        amount: 100_u256,
+        flag: true,
+        rev_share_bps: 1000_u256,
+        rev_share_receiver: USER(),
+    };
 
     start_cheat_caller_address(registry, ADMIN());
     let admin_dispatcher = IAdminDispatcher { contract_address: registry };
@@ -1204,7 +1282,7 @@ fn test_update_rev_share_receiver_not_suffix_admin() {
             let err_data = x;
             assert(err_data.at(0) == @'INVALID_SUFFIX_ADMIN', 'wrong error');
         },
-    };
+    }
     stop_cheat_caller_address(registry);
 }
 
@@ -1229,7 +1307,7 @@ fn test_update_rev_share_receiver_suffix_not_registered() {
             let err_data = x;
             assert(err_data.at(0) == @'SUFFIX_NOT_REG', 'wrong error');
         },
-    };
+    }
     stop_cheat_caller_address(registry);
 }
 
@@ -1246,7 +1324,13 @@ fn test_add_fee_info_zero_rev_share_receiver() {
     let (token, _) = token_contract.deploy(@ArrayTrait::new()).unwrap();
 
     let zero: ContractAddress = Zero::zero();
-    let fee_info = FeeInfo { asset_addr: token, amount: 100_u256, flag: true, rev_share_bps: 1000_u256, rev_share_receiver: zero };
+    let fee_info = FeeInfo {
+        asset_addr: token,
+        amount: 100_u256,
+        flag: true,
+        rev_share_bps: 1000_u256,
+        rev_share_receiver: zero,
+    };
 
     start_cheat_caller_address(registry, ADMIN());
     let admin_dispatcher = IAdminDispatcher { contract_address: registry };
@@ -1262,7 +1346,7 @@ fn test_add_fee_info_zero_rev_share_receiver() {
             let err_data = x;
             assert(err_data.at(0) == @'ZERO_REV_SHARE_RECEIV', 'wrong error');
         },
-    };
+    }
     stop_cheat_caller_address(registry);
 }
 
@@ -1276,7 +1360,13 @@ fn test_add_fee_info_invalid_rev_bps() {
     let token_contract = declare("mock_token").unwrap().contract_class();
     let (token, _) = token_contract.deploy(@ArrayTrait::new()).unwrap();
 
-    let fee_info = FeeInfo { asset_addr: token, amount: 100_u256, flag: true, rev_share_bps: 5000_u256, rev_share_receiver: USER() };
+    let fee_info = FeeInfo {
+        asset_addr: token,
+        amount: 100_u256,
+        flag: true,
+        rev_share_bps: 5000_u256,
+        rev_share_receiver: USER(),
+    };
 
     start_cheat_caller_address(registry, ADMIN());
     let admin_dispatcher = IAdminDispatcher { contract_address: registry };
@@ -1292,6 +1382,6 @@ fn test_add_fee_info_invalid_rev_bps() {
             let err_data = x;
             assert(err_data.at(0) == @'INVALID_REV_BPS', 'wrong error');
         },
-    };
+    }
     stop_cheat_caller_address(registry);
 }
