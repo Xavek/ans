@@ -107,6 +107,8 @@ mod Registry {
             assert(suffix.is_non_zero(), errors::ZERO_SUFFIX);
             assert(addr.is_non_zero(), errors::ZERO_INPUT_ADDR);
             self.assert_is_admin();
+            let suffix_count = self.suffix_log.read(suffix);
+            assert(suffix_count == 0, errors::SUFFIX_ALREADY_REGISTERED);
             self.suffix_admin.write(suffix, addr);
             self
                 .emit(
