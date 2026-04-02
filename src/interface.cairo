@@ -27,6 +27,7 @@ pub trait IRegistry<TContractState> {
     fn retrieve_name_from_address(
         self: @TContractState, addr: ContractAddress, suffix: felt252,
     ) -> NameList;
+    fn is_name_available(self: @TContractState, name: felt252, suffix: felt252) -> bool;
     fn get_suffix_fee_details(self: @TContractState, suffix: felt252) -> FeeInfo;
 
     fn gets_suffix_admin(self: @TContractState, suffix: felt252) -> ContractAddress;

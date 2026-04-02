@@ -1106,6 +1106,42 @@ fn test_get_suffix_mint_count_zero_suffix() {
     };
 }
 
+#[test]
+fn test_is_name_available_true() {
+    let reg_contract = declare("Registry").unwrap().contract_class();
+    let mut calldata = array![];
+    Serde::serialize(@ADMIN(), ref calldata);
+    let (registry, _) = reg_contract.deploy(@calldata).unwrap();
+
+    let reg_dispatcher = IRegistryDispatcher { contract_address: registry };
+    let is_available = reg_dispatcher.is_name_available('unregistered', 'eth');
+    assert(is_available == true, 'should be available');
+}
+
+#[test]
+fn test_is_name_available_zero_name() {
+    let reg_contract = declare("Registry").unwrap().contract_class();
+    let mut calldata = array![];
+    Serde::serialize(@ADMIN(), ref calldata);
+    let (registry, _) = reg_contract.deploy(@calldata).unwrap();
+
+    let reg_dispatcher = IRegistryDispatcher { contract_address: registry };
+    let is_available = reg_dispatcher.is_name_available(0, 'eth');
+    assert(is_available == true, 'zero name should return true');
+}
+
+#[test]
+fn test_is_name_available_zero_suffix() {
+    let reg_contract = declare("Registry").unwrap().contract_class();
+    let mut calldata = array![];
+    Serde::serialize(@ADMIN(), ref calldata);
+    let (registry, _) = reg_contract.deploy(@calldata).unwrap();
+
+    let reg_dispatcher = IRegistryDispatcher { contract_address: registry };
+    let is_available = reg_dispatcher.is_name_available('name', 0);
+    assert(is_available == true, 'zero suffix should return true');
+}
+
 // ============ REVENUE SHARE TESTS ============
 
 #[test]
