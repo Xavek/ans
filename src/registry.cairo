@@ -222,6 +222,15 @@ mod Registry {
             NameList { names, suffix }
         }
 
+        fn is_name_available(self: @ContractState, name: felt252, suffix: felt252) -> bool {
+            let result = self.name_to_address.entry(suffix).read(name);
+            if (result.is_zero()) {
+                true
+            } else {
+                false
+            }
+        }
+
         fn get_suffix_fee_details(self: @ContractState, suffix: felt252) -> FeeInfo {
             self.fee_info.read(suffix)
         }
